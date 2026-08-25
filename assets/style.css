@@ -1,118 +1,223 @@
-/* assets/style.css */
+/* --- Global & Layout Styles --- */
 body {
-    background-color: #1b1e2b;
-    color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #334155;
     margin: 0;
     padding: 0;
 }
 
-/* Estilização das Abas (Tabs) */
-.nav-tabs {
-    border-bottom: 1px solid #262b3d !important;
-    margin-bottom: 25px;
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f1f5f9;
 }
 
-.nav-tabs .nav-link {
-    color: #8b94a5 !important;
-    background-color: transparent !important;
-    border: none !important;
-    padding: 12px 24px;
-    font-weight: 600;
-    font-size: 15px;
+/* --- Sidebar Styles --- */
+.sidebar {
+    width: 260px;
+    background-color: #0f172a;
+    color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
 }
 
-.nav-tabs .nav-link.active {
-    color: #0ba39c !important;
-    border-bottom: 3px solid #0ba39c !important;
-    background-color: rgba(11, 163, 156, 0.1) !important;
-    border-radius: 6px 6px 0 0;
+.sidebar.collapsed {
+    width: 80px;
 }
 
-/* Cards de Gráficos (Parte Inferior) */
-.chart-card {
-    background-color: #262b3d;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-    margin-bottom: 20px;
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .username,
+.sidebar.collapsed .sidebar-header .user-profile .avatar {
+    display: none;
 }
 
-.chart-card-center {
-    background-color: #262b3d;
-    border-radius: 12px;
-    padding: 22px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(11, 163, 156, 0.3);
-    margin-bottom: 20px;
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 15px;
 }
 
-.chart-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #e0e6ed;
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.chart-title-center {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 15px;
-    color: #0ba39c;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Cards de KPIs (Parte Superior) */
-.kpi-card {
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-    position: relative;
+.avatar {
+    width: 38px;
+    height: 38px;
+    background-color: #4379f2;
     color: white;
-    margin-bottom: 25px;
-    transition: transform 0.2s;
-}
-
-.kpi-card:hover {
-    transform: translateY(-5px);
-}
-
-.kpi-value {
-    font-size: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
-    margin: 0;
+    font-size: 14px;
 }
 
-.kpi-title {
+.username {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: #f8fafc;
+}
+
+.toggle-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.toggle-btn:hover {
+    color: #ffffff;
+}
+
+.nav-divider {
+    height: 1px;
+    background-color: #1e293b;
+    margin: 0 15px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    margin: 4px 12px;
+    gap: 15px;
+}
+
+.nav-item:hover {
+    background-color: rgba(67, 121, 242, 0.1);
+    color: #ffffff;
+}
+
+.nav-item.active {
+    background-color: #4379f2;
+    color: #ffffff;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(67, 121, 242, 0.3);
+}
+
+.nav-icon {
+    font-size: 16px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.nav-text {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* --- Main Content --- */
+.main-content {
+    margin-left: 260px;
+    flex: 1;
+    padding: 30px;
+    transition: margin-left 0.3s ease;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+.sidebar.collapsed~.main-content {
+    margin-left: 80px;
+}
+
+.header-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.header-subtitle {
     font-size: 12px;
-    text-transform: uppercase;
+    font-weight: 600;
+    color: #64748b;
     letter-spacing: 1px;
-    opacity: 0.9;
+    text-transform: uppercase;
+}
+
+/* --- Cards & UI Components --- */
+.dash-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: box-shadow 0.2s ease;
+}
+
+.dash-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-title-sm {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+/* --- Progress Bar Customization --- */
+.progress-bar-container {
+    width: 100%;
     margin-bottom: 10px;
 }
 
-.kpi-icon {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 26px;
-    opacity: 0.4;
+.progress-track {
+    background-color: #f1f5f9;
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+    width: 100%;
 }
 
-/* Gradientes */
-.grad-teal {
-    background: linear-gradient(135deg, #0ba39c 0%, #203a43 100%);
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
 }
 
-.grad-orange {
-    background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+/* --- Placeholder Cards (For Profile Tabs) --- */
+.placeholder-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    padding: 60px 40px;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    max-width: 600px;
+    margin: 40px auto;
 }
 
-.grad-yellow {
-    background: linear-gradient(135deg, #f7b733 0%, #fc4a1a 100%);
+.placeholder-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
 }
 
-.grad-purple {
-    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+.placeholder-text {
+    font-size: 14px;
+    color: #64748b;
 }
