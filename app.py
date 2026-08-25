@@ -250,6 +250,9 @@ layout_analise_dados = html.Div([
 FA_CDN = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, FA_CDN], suppress_callback_exceptions=True)
 
+# EXPOSIÇÃO DO SERVER PARA O GUNICORN (Render)
+server = app.server
+
 # ---------------------------------------------------------------
 # Layout Principal com Foto de Perfil Dinâmica
 # ---------------------------------------------------------------
