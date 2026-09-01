@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import math
 
 # ---------------------------------------------------------------
 # Carregamento e Preparação dos Dados
@@ -35,6 +36,26 @@ C_NAVY = "#0f172a"
 C_BLUE = "#4379f2"
 C_LIGHT_BLUE = "#709cfd"
 C_CYAN = "#00c49f"
+
+# ---------------------------------------------------------------
+# Intervalos de Confiança
+# ---------------------------------------------------------------
+Z_IC = {
+    "90": 1.645,
+    "95": 1.960,
+    "99": 2.576,
+}
+
+def intervalo_proporcao(sucessos, total, nivel):
+    if total == 0:
+        return 0, 0
+
+    z = Z_IC[nivel]
+    p = sucessos / total
+    erro = z * math.sqrt((p * (1 - p)) / total)
+    limite_inferior = max(0, p - erro) * 100
+    limite_superior = min(1, p + erro) * 100
+    return limite_inferior, limite_superior
 
 # ---------------------------------------------------------------
 # Componentes de Filtro (UI)
@@ -87,7 +108,23 @@ filtros_layout = dbc.Card(
                     marks=None, tooltip={"placement": "bottom", "always_visible": True}
                 )
             ], width=3),
-        ], className="align-items-center")
+        ], className="align-items-center"),
+        dbc.Row([
+            dbc.Col([
+                html.Label("Intervalo de Confiança", className="card-title-sm"),
+                dcc.Dropdown(
+                    id="filtro-ic",
+                    options=[
+                        {"label": "Desativado", "value": "off"},
+                        {"label": "90%", "value": "90"},
+                        {"label": "95%", "value": "95"},
+                        {"label": "99%", "value": "99"},
+                    ],
+                    value="off",
+                    clearable=False
+                )
+            ], width=3)
+        ], className="mt-3")
     ]),
     className="mb-4 dash-card", style={"padding": "10px"}
 )
@@ -103,11 +140,11 @@ layout_quem_sou_eu = html.Div(className="dash-card p-4", children=[
         html.H5("Resumo Profissional", className="fw-bold text-primary mb-2"),
         html.P(
             "Sou estudante de Engenharia de Software (formação prevista para 2028), com interesse em atuar "
-            "na área financeira e em sistemas que exigem alta confiabilidade e organização técnica[cite: 2]. "
+            "na área financeira e em sistemas que exigem alta confiabilidade e organização técnica. "
             "Venho desenvolvendo projetos práticos em desenvolvimento de software, com experiência em JavaScript, "
-            "Node.js e Python, estruturando APIs, integração cliente-servidor e lógica de sistemas[cite: 2]. "
+            "Node.js e Python, estruturando APIs, integração cliente-servidor e lógica de sistemas. "
             "Atualmente, estou aprofundando meus estudos em Java, com foco em arquitetura, boas práticas e "
-            "desenvolvimento orientado a sistemas robustos[cite: 2].",
+            "desenvolvimento orientado a sistemas robustos.",
             className="text-secondary mb-4"
         ),
 
@@ -126,16 +163,16 @@ layout_qualificacoes = html.Div(className="dash-card p-4", children=[
     html.H5([html.I(className="fa-solid fa-graduation-cap me-2 text-primary"), "Formação Acadêmica"], className="fw-bold text-primary mb-2"),
     html.Div([
         html.H6("FIAP — Bacharelado em Computer Software Engineering", className="fw-bold mb-1"),
-        html.P("Março de 2025 – Dezembro de 2028[cite: 2]", className="text-muted small mb-4")
+        html.P("Março de 2025 – Dezembro de 2028", className="text-muted small mb-4")
     ]),
 
     html.H5([html.I(className="fa-solid fa-certificate me-2 text-primary"), "Certificações"], className="fw-bold text-primary mb-2"),
     html.Ul([
-        html.Li("Java: Primeira Aplicação[cite: 2]"),
-        html.Li("Resolvendo Problemas com Matemática[cite: 2]"),
-        html.Li("Soluções Tecnológicas Emergentes[cite: 2]"),
-        html.Li("Java Development[cite: 2]"),
-        html.Li("Formação Social e Sustentabilidade[cite: 2]"),
+        html.Li("Java: Primeira Aplicação"),
+        html.Li("Resolvendo Problemas com Matemática"),
+        html.Li("Soluções Tecnológicas Emergentes"),
+        html.Li("Java Development"),
+        html.Li("Formação Social e Sustentabilidade"),
     ], className="text-secondary")
 ])
 
@@ -157,8 +194,8 @@ layout_skills = html.Div(className="dash-card p-4", children=[
         dbc.Col([
             html.H5([html.I(className="fa-solid fa-globe me-2 text-primary"), "Idiomas"], className="fw-bold text-primary mb-3"),
             html.Ul([
-                html.Li("Português (Nativo / Bilíngue)[cite: 2]"),
-                html.Li("Inglês B1 (Profissional / Working)[cite: 2]"),
+                html.Li("Português (Nativo / Bilíngue)"),
+                html.Li("Inglês B1 (Profissional / Working)"),
             ], className="text-secondary")
         ], md=6)
     ])
@@ -306,7 +343,7 @@ app.layout = html.Div(className="dashboard-wrapper", children=[
 
     # Conteúdo Principal
     html.Div(className="main-content", children=[
-        html.H1("Dashboard de Dados", className="header-title"),
+        html.H1("Dashboard Profissional", className="header-title"),
         html.Div("PORTFÓLIO E CENSUS INCOME DATASET", className="header-subtitle mb-4"),
 
         html.Div(id="tab-content-container")
@@ -388,10 +425,11 @@ def render_content(active_section):
      Input("filtro-vinculo", "value"),
      Input("filtro-escolaridade", "value"),
      Input("filtro-idade", "value"),
-     Input("filtro-jornada", "value")],
+     Input("filtro-jornada", "value"),
+     Input("filtro-ic", "value")],
     prevent_initial_call=False
 )
-def update_dashboard(filtro_renda, filtro_vinculo, filtro_escolaridade, filtro_idade, filtro_jornada):
+def update_dashboard(filtro_renda, filtro_vinculo, filtro_escolaridade, filtro_idade, filtro_jornada, filtro_ic):
     dff = df.copy()
 
     if filtro_renda:
@@ -437,8 +475,14 @@ def update_dashboard(filtro_renda, filtro_vinculo, filtro_escolaridade, filtro_i
     fig_area.update_xaxes(title="", showgrid=False)
     fig_area.update_yaxes(title="")
 
-    hours_age = dff.groupby("age")["hours_per_week"].mean().reset_index()
-    fig_line = px.line(hours_age, x="age", y="hours_per_week", markers=True)
+    if filtro_ic != "off":
+        hours_age = dff.groupby("age")["hours_per_week"].agg(["mean", "std", "count"]).reset_index()
+        hours_age["std"] = hours_age["std"].fillna(0)
+        hours_age["erro_ic"] = Z_IC[filtro_ic] * hours_age["std"] / hours_age["count"].pow(0.5)
+        fig_line = px.line(hours_age, x="age", y="mean", markers=True, error_y="erro_ic")
+    else:
+        hours_age = dff.groupby("age")["hours_per_week"].mean().reset_index()
+        fig_line = px.line(hours_age, x="age", y="hours_per_week", markers=True)
     fig_line.update_traces(line_color=C_BLUE, marker=dict(size=4, color=C_CYAN))
     fig_line.update_layout(**layout_clean, height=200, showlegend=False)
     fig_line.update_xaxes(title="", showgrid=False)
@@ -460,18 +504,32 @@ def update_dashboard(filtro_renda, filtro_vinculo, filtro_escolaridade, filtro_i
         }
     ))
     fig_gauge.update_layout(**layout_clean, height=200)
+    if filtro_ic != "off":
+        ic_inf, ic_sup = intervalo_proporcao(dff["renda_alta"].sum(), len(dff), filtro_ic)
+        fig_gauge.add_annotation(
+            text=f"IC {filtro_ic}%: {ic_inf:.1f}% – {ic_sup:.1f}%",
+            x=0.5, y=0.05, showarrow=False, font_size=10, font_color="#64748b"
+        )
 
     male_data = dff[dff["sex"] == "Male"]
     male_pct = male_data["renda_alta"].mean() * 100 if not male_data.empty else 0
     fig_p_male = go.Figure(go.Pie(values=[male_pct, 100-male_pct], hole=0.75, marker_colors=[C_CYAN, "#e2e8f0"]))
     fig_p_male.update_layout(**layout_clean, height=120, showlegend=False)
-    fig_p_male.add_annotation(text=f"{male_pct:.1f}%", x=0.5, y=0.5, font_size=15, font_weight="bold", showarrow=False, font_color=C_CYAN)
+    male_texto = f"{male_pct:.1f}%"
+    if filtro_ic != "off" and not male_data.empty:
+        male_inf, male_sup = intervalo_proporcao(male_data["renda_alta"].sum(), len(male_data), filtro_ic)
+        male_texto += f"<br><span style='font-size:8px'>IC {filtro_ic}%: {male_inf:.1f}–{male_sup:.1f}%</span>"
+    fig_p_male.add_annotation(text=male_texto, x=0.5, y=0.5, font_size=15, font_weight="bold", showarrow=False, font_color=C_CYAN)
 
     female_data = dff[dff["sex"] == "Female"]
     female_pct = female_data["renda_alta"].mean() * 100 if not female_data.empty else 0
     fig_p_female = go.Figure(go.Pie(values=[female_pct, 100-female_pct], hole=0.75, marker_colors=[C_BLUE, "#e2e8f0"]))
     fig_p_female.update_layout(**layout_clean, height=120, showlegend=False)
-    fig_p_female.add_annotation(text=f"{female_pct:.1f}%", x=0.5, y=0.5, font_size=15, font_weight="bold", showarrow=False, font_color=C_BLUE)
+    female_texto = f"{female_pct:.1f}%"
+    if filtro_ic != "off" and not female_data.empty:
+        female_inf, female_sup = intervalo_proporcao(female_data["renda_alta"].sum(), len(female_data), filtro_ic)
+        female_texto += f"<br><span style='font-size:8px'>IC {filtro_ic}%: {female_inf:.1f}–{female_sup:.1f}%</span>"
+    fig_p_female.add_annotation(text=female_texto, x=0.5, y=0.5, font_size=15, font_weight="bold", showarrow=False, font_color=C_BLUE)
 
     top_edu = dff.groupby("education")["renda_alta"].mean().sort_values(ascending=False).head(3) * 100
     edu_labels = top_edu.index.tolist()
@@ -480,10 +538,20 @@ def update_dashboard(filtro_renda, filtro_vinculo, filtro_escolaridade, filtro_i
     
     html_educacao = []
     for i in range(len(edu_labels)):
+        valor_educacao = f"{edu_vals[i]:.1f}%"
+        if filtro_ic != "off":
+            dados_edu = dff[dff["education"] == edu_labels[i]]
+            edu_inf, edu_sup = intervalo_proporcao(dados_edu["renda_alta"].sum(), len(dados_edu), filtro_ic)
+            valor_educacao = html.Div([
+                html.Span(f"{edu_vals[i]:.1f}%"),
+                html.Br(),
+                html.Small(f"IC {filtro_ic}%: {edu_inf:.1f}–{edu_sup:.1f}%", style={"fontWeight": "normal"})
+            ], className="text-end")
+
         html_educacao.append(
             html.Div([
                 html.Div(className="d-flex justify-content-between mb-1", style={"fontSize": "11px", "fontWeight": "bold", "color": colors[i]}, children=[
-                    html.Span(edu_labels[i]), html.Span(f"{edu_vals[i]:.1f}%")
+                    html.Span(edu_labels[i]), valor_educacao
                 ]),
                 html.Div(className="progress-bar-container", children=[
                     html.Div(className="progress-track", children=[
