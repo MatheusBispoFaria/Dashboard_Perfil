@@ -1,0 +1,94 @@
+{
+  "origem": "cp5_datascience.zip fornecido pelo autor do portfólio",
+  "arquivo_sha256": "5bb1554fff2c510309dff288e28fb1ee2840c3369693a8251c4899dd03f5aa5b",
+  "arquivos": [
+    "despesas_es_2024_completo_parte_01.zip",
+    "despesas_es_2024_completo_parte_02.zip",
+    "despesas_es_2024_completo_parte_03.zip",
+    "despesas_es_2024_completo_parte_04.zip",
+    "despesas_es_2025_completo_parte_01.zip",
+    "despesas_es_2025_completo_parte_02.zip",
+    "despesas_es_2025_completo_parte_03.zip",
+    "despesas_es_2025_completo_parte_04.zip"
+  ],
+  "areas": [
+    "URBANISMO",
+    "TRANSPORTE",
+    "HABITAÇÃO",
+    "SANEAMENTO",
+    "GESTÃO AMBIENTAL"
+  ],
+  "metadata": {
+    "registros_base_integral": 1092158,
+    "registros_recorte": 62590,
+    "data_minima": "2024-01-03",
+    "data_maxima": "2025-12-31",
+    "anos": [
+      2024,
+      2025
+    ],
+    "total_funcoes": 5,
+    "total_localizadores": 11
+  },
+  "auditoria": {
+    "registros_base_integral": 1092158,
+    "registros_recorte": 62590,
+    "registros_base_integral_por_ano": {
+      "2024": 505950,
+      "2025": 586208
+    },
+    "registros_recorte_por_ano": {
+      "2024": 28357,
+      "2025": 34233
+    },
+    "duplicados_id_base_integral": 0,
+    "datas_invalidas_base_integral": 0,
+    "valores_invalidos_base_integral": {
+      "ValorEmpenho": 0,
+      "ValorLiquidado": 0,
+      "ValorPago": 0,
+      "ValorRap": 0
+    },
+    "ausencias_recorte": {
+      "Id": 0,
+      "Ano": 0,
+      "Data": 0,
+      "ValorEmpenho": 0,
+      "ValorLiquidado": 0,
+      "ValorPago": 0,
+      "ValorRap": 0,
+      "Funcao": 0,
+      "Subtitulo": 0,
+      "SubFuncao": 0,
+      "Programa": 0,
+      "Acao": 0,
+      "UnidadeGestora": 0
+    },
+    "valores_negativos_recorte": {
+      "ValorEmpenho": 1258,
+      "ValorLiquidado": 11516,
+      "ValorPago": 986,
+      "ValorRap": 80
+    },
+    "registros_por_funcao": {
+      "GESTÃO AMBIENTAL": 28142,
+      "HABITAÇÃO": 199,
+      "SANEAMENTO": 1499,
+      "TRANSPORTE": 26263,
+      "URBANISMO": 6487
+    },
+    "rotulos_reconstruidos_2025": {
+      "Funcao": 586208,
+      "SubFuncao": 586006,
+      "Programa": 586206,
+      "Subtitulo": 586208
+    },
+    "rotulos_fallback_2025": {
+      "Funcao": 0,
+      "SubFuncao": 202,
+      "Programa": 2,
+      "Subtitulo": 0
+    }
+  },
+  "tratamento": "Tratamento original de src/data_service.py: reconstrução dos rótulos de 2025 pelos códigos oficiais de 2024, datas válidas e deduplicação por Id. Valores negativos preservados; nenhuma amostragem no recorte temático."
+}
