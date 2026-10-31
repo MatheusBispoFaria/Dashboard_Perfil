@@ -1,73 +1,71 @@
-"""Tela da análise de dados e resumo de escolaridade."""
+"""Visão geral do dashboard e resumo de escolaridade."""
 
-from dash import dcc, html
-import dash_bootstrap_components as dbc
+from dash import html
 
 from ..statistics import proportion_interval
 from ..theme import C_BLUE, C_CYAN, C_NAVY
+from .cards import create_chart_card
 from .filters import create_filters
 
 
-def _chart_column(width, title, graph_id):
-    return dbc.Col(width=width, children=[
-        html.Div(className="dash-card", children=[
-            html.Div(title, className="card-title-sm"),
-            dcc.Graph(id=graph_id, config={"displayModeBar": False}),
-        ]),
-    ])
-
-
-def _gender_income_column(title, description, graph_id):
-    return dbc.Col(width=4, children=[
-        html.Div(
-            className="dash-card d-flex flex-row align-items-center",
-            children=[
-                html.Div(style={"width": "100px"}, children=[
-                    dcc.Graph(id=graph_id, config={"displayModeBar": False}),
-                ]),
-                html.Div(className="ms-3", children=[
-                    html.Div(
-                        title, className="card-title-sm",
-                        style={"border": "none", "margin": 0, "padding": 0},
-                    ),
-                    html.P(
-                        description,
-                        style={"fontSize": "12px", "color": "#64748b", "margin": 0},
-                    ),
-                ]),
-            ],
-        ),
-    ])
-
-
 def create_analysis_layout(data):
-    return html.Div([
-        create_filters(data),
-        dbc.Row(className="mb-4", children=[
-            _chart_column(6, "DISTRIBUIÇÃO DE OCUPAÇÕES", "graph-ocupacoes"),
-            _chart_column(3, "DISTRIBUIÇÃO DE RENDA", "graph-renda"),
-            _chart_column(3, "GÊNERO NA BASE", "graph-genero"),
-        ]),
-        dbc.Row(className="mb-4", children=[
-            _chart_column(4, "DENSIDADE DE IDADE POR RENDA", "graph-idade-renda"),
-            _chart_column(4, "MÉDIA DE HORAS/SEMANA POR IDADE", "graph-horas-idade"),
-            _chart_column(4, "% RENDA ALTA GLOBAL (>50K)", "graph-velocimetro"),
-        ]),
-        dbc.Row(children=[
-            _gender_income_column(
-                "HOMENS (>50K)", "Taxa de alta renda no grupo masculino",
-                "graph-donut-homens",
-            ),
-            _gender_income_column(
-                "MULHERES (>50K)", "Taxa de alta renda no grupo feminino",
-                "graph-donut-mulheres",
-            ),
-            dbc.Col(width=4, children=[
-                html.Div(className="dash-card justify-content-center", children=[
-                    html.Div("TOP ESCOLARIDADE (>50K)", className="card-title-sm mb-3"),
-                    html.Div(id="top-escolaridade-container")
-                ])
+    return html.Div(className="analysis-page", children=[
+        html.Div(className="page-heading", children=[
+            html.Div([
+                html.P("CENSUS INCOME · ANÁLISE DE DADOS", className="page-eyebrow"),
+                html.H1("Renda e perfil socioeconômico", className="header-title"),
+                html.P(
+                    "Explore as relações entre renda, escolaridade, idade e ocupação.",
+                    className="analysis-intro",
+                ),
             ]),
+            html.Div(className="heading-meta", children=[
+                html.Span("Visão geral", className="overview-pill"),
+                html.Span(id="selection-summary", className="selection-summary", **{"aria-live": "polite"}),
+            ]),
+        ]),
+        create_filters(data),
+        html.Div(className="overview-grid", children=[
+            create_chart_card(
+                "graph-velocimetro", "INDICADOR GLOBAL", "Participação da renda acima de 50K",
+                "fa-arrow-trend-up", "accent-dark",
+            ),
+            create_chart_card(
+                "graph-renda", "COMPOSIÇÃO", "Participação de cada faixa de renda",
+                "fa-chart-pie", "accent-mint",
+            ),
+            create_chart_card(
+                "graph-genero", "PERFIL DA BASE", "Distribuição dos registros por gênero",
+                "fa-venus-mars", "accent-lilac",
+            ),
+            create_chart_card(
+                "top-escolaridade-container", "FORMAÇÃO", "As três maiores taxas de renda alta",
+                "fa-graduation-cap", "education-card",
+            ),
+        ]),
+        html.Div(className="detail-grid", children=[
+            create_chart_card(
+                "graph-ocupacoes", "MERCADO DE TRABALHO", "As dez ocupações mais frequentes na seleção",
+                "fa-briefcase", "occupation-card",
+            ),
+            create_chart_card(
+                "graph-idade-renda", "DISTRIBUIÇÃO ETÁRIA", "Quantidade de pessoas por idade e faixa de renda",
+                "fa-chart-area", "age-card",
+            ),
+        ]),
+        html.Div(className="journey-grid", children=[
+            create_chart_card(
+                "graph-horas-idade", "JORNADA SEMANAL", "Média de horas de trabalho por idade",
+                "fa-clock", "hours-card",
+            ),
+            create_chart_card(
+                "graph-donut-homens", "RENDA POR GÊNERO", "Taxa de renda acima de 50K no grupo masculino",
+                "fa-mars", "gender-income-card",
+            ),
+            create_chart_card(
+                "graph-donut-mulheres", "RENDA POR GÊNERO", "Taxa de renda acima de 50K no grupo feminino",
+                "fa-venus", "gender-income-card",
+            ),
         ]),
     ])
 
@@ -98,9 +96,9 @@ def create_education_summary(data, confidence="off"):
         summary.append(
             html.Div([
                 html.Div(
-                    className="d-flex justify-content-between mb-1",
+                    className="education-label",
                     style={
-                        "fontSize": "11px", "fontWeight": "bold", "color": colors[index],
+                        "color": colors[index],
                     },
                     children=[html.Span(education), value],
                 ),

@@ -15,7 +15,7 @@ def create_occupation_figure(data):
     fig_bar = px.bar(
         occ_counts, x="occupation", y="count", color_discrete_sequence=[C_NAVY]
     )
-    fig_bar.update_layout(**LAYOUT_CLEAN, height=230)
+    fig_bar.update_layout(**LAYOUT_CLEAN, height=238)
     fig_bar.update_traces(marker_line_width=0, hovertemplate="%{x}: <b>%{y}</b>")
     fig_bar.update_xaxes(title="", tickangle=-35)
     fig_bar.update_yaxes(title="")
@@ -25,29 +25,32 @@ def create_occupation_figure(data):
 def create_income_figure(data):
     income_counts = data["income"].value_counts().reset_index()
     fig_pie = px.pie(
-        income_counts, values="count", names="income", hole=0,
+        income_counts, values="count", names="income", color="income", hole=0,
         color_discrete_map={"<=50K": C_BLUE, ">50K": C_CYAN},
     )
     fig_pie.update_layout(
-        **LAYOUT_CLEAN, height=230, showlegend=True,
-        legend=dict(orientation="h", y=-0.1, x=0.2),
+        **LAYOUT_CLEAN, height=178, showlegend=True,
+        legend=dict(orientation="h", y=-0.02, x=0.5, xanchor="center", font_size=9),
     )
-    fig_pie.update_traces(textinfo="percent+label")
+    fig_pie.update_traces(textinfo="percent", textfont_size=10, marker_line_width=0)
     return fig_pie
 
 
 def create_gender_figure(data):
     sex_counts = data["sex"].value_counts().reset_index()
     fig_donut = px.pie(
-        sex_counts, values="count", names="sex", hole=0.68,
+        sex_counts, values="count", names="sex", color="sex", hole=0.72,
         color_discrete_map={"Male": C_NAVY, "Female": C_LIGHT_BLUE},
     )
-    fig_donut.update_layout(**LAYOUT_CLEAN, height=230, showlegend=False)
-    fig_donut.add_annotation(
-        text="GÊNERO", x=0.5, y=0.5, font_size=12,
-        font_weight="bold", showarrow=False, font_color="#64748b",
+    fig_donut.update_layout(
+        **LAYOUT_CLEAN, height=178, showlegend=True,
+        legend=dict(orientation="h", y=-0.02, x=0.5, xanchor="center", font_size=9),
     )
-    fig_donut.update_traces(textinfo="percent+label")
+    fig_donut.add_annotation(
+        text="GÊNERO", x=0.5, y=0.5, font_size=10,
+        font_weight="normal", showarrow=False, font_color="#64748b",
+    )
+    fig_donut.update_traces(textinfo="percent", textposition="inside", textfont_size=10)
     return fig_donut
 
 
@@ -57,7 +60,7 @@ def create_age_income_figure(data):
         age_income, x="age", y="count", color="income",
         color_discrete_map={"<=50K": C_LIGHT_BLUE, ">50K": C_NAVY},
     )
-    fig_area.update_layout(**LAYOUT_CLEAN, height=200, showlegend=False)
+    fig_area.update_layout(**LAYOUT_CLEAN, height=238, showlegend=False)
     fig_area.update_xaxes(title="", showgrid=False)
     fig_area.update_yaxes(title="")
     return fig_area
@@ -91,26 +94,26 @@ def create_income_gauge(data, confidence="off"):
         value=pct_alta,
         number={
             "suffix": "%", "valueformat": ".1f",
-            "font": {"size": 26, "color": C_NAVY, "weight": "bold"},
+            "font": {"size": 30, "color": "#ffffff", "weight": "normal"},
         },
         gauge={
             "axis": {"range": [0, 100], "visible": False},
             "bar": {"color": C_CYAN, "thickness": 0.75},
             "bgcolor": "#e2e8f0",
             "steps": [
-                {"range": [0, 50], "color": C_LIGHT_BLUE},
-                {"range": [50, 100], "color": C_NAVY},
+                {"range": [0, 50], "color": "#485256"},
+                {"range": [50, 100], "color": "#373e42"},
             ],
         },
     ))
-    fig_gauge.update_layout(**LAYOUT_CLEAN, height=200)
+    fig_gauge.update_layout(**LAYOUT_CLEAN, height=178)
     if confidence != "off":
         lower, upper = proportion_interval(
             data["renda_alta"].sum(), len(data), confidence
         )
         fig_gauge.add_annotation(
             text=f"IC {confidence}%: {lower:.1f}% – {upper:.1f}%",
-            x=0.5, y=0.05, showarrow=False, font_size=10, font_color="#64748b",
+            x=0.5, y=0.02, showarrow=False, font_size=9, font_color="#cfdddd",
         )
     return fig_gauge
 
@@ -122,7 +125,8 @@ def create_gender_income_figure(data, sex, color, confidence="off"):
         values=[percentage, 100 - percentage], hole=0.75,
         marker_colors=[color, "#e2e8f0"],
     ))
-    figure.update_layout(**LAYOUT_CLEAN, height=120, showlegend=False)
+    figure.update_layout(**LAYOUT_CLEAN, height=200, showlegend=False)
+    figure.update_traces(textinfo="none", hovertemplate="%{value:.1f}%<extra></extra>")
     label = f"{percentage:.1f}%"
     if confidence != "off" and not group_data.empty:
         lower, upper = proportion_interval(
@@ -133,8 +137,8 @@ def create_gender_income_figure(data, sex, color, confidence="off"):
             f"IC {confidence}%: {lower:.1f}–{upper:.1f}%</span>"
         )
     figure.add_annotation(
-        text=label, x=0.5, y=0.5, font_size=15,
-        font_weight="bold", showarrow=False, font_color=color,
+        text=label, x=0.5, y=0.5, font_size=24,
+        font_weight="normal", showarrow=False, font_color=color,
     )
     return figure
 

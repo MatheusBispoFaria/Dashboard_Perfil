@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1100" fill="none">
+  <defs>
+    <linearGradient id="chrome" x1="280" y1="0" x2="705" y2="210" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#060606"/><stop offset=".12" stop-color="#383838"/>
+      <stop offset=".19" stop-color="#e5e5e5"/><stop offset=".23" stop-color="#fff"/>
+      <stop offset=".28" stop-color="#6c6c6c"/><stop offset=".36" stop-color="#090909"/>
+      <stop offset=".53" stop-color="#414141"/><stop offset=".58" stop-color="#e8e8e8"/>
+      <stop offset=".61" stop-color="#fafafa"/><stop offset=".67" stop-color="#555"/>
+      <stop offset=".83" stop-color="#111"/><stop offset="1" stop-color="#999"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="300" y1="0" x2="680" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eee"/><stop offset=".3" stop-color="#222"/>
+      <stop offset=".55" stop-color="#fff"/><stop offset=".8" stop-color="#222"/>
+      <stop offset="1" stop-color="#bbb"/>
+    </linearGradient>
+  </defs>
+  <path d="M420-180C270 80 405 220 555 330S740 530 570 700 400 980 650 1230" stroke="url(#chrome)" stroke-width="220"/>
+  <path d="M330-150C245 105 382 274 534 373S656 563 505 734 399 1023 575 1210" stroke="url(#edge)" stroke-width="2.4"/>
+  <path d="M358-168C250 95 390 251 546 351S691 549 534 716 398 1001 611 1222" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M463-190C342 60 448 193 604 308S802 525 628 706 477 975 699 1200" stroke="url(#edge)" stroke-width="1.8"/>
+</svg>

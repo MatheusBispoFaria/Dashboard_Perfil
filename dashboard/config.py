@@ -10,10 +10,14 @@ FONT_AWESOME_URL = (
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 )
 
-DEFAULT_SECTION = "analise-dados"
+DEFAULT_SECTION = "inicio"
+ANALYSIS_ITEMS = (
+    ("analise-dados", "Renda e perfil socioeconômico"),
+    ("cp5-data-science", "Despesas Públicas · ES"),
+)
 NAV_ITEMS = (
-    ("analise-dados", "Análise de Dados", "fa-chart-line"),
+    ("analise-dados", "Análises de Dados", "fa-chart-line"),
     ("quem-sou-eu", "Quem Sou Eu", "fa-user"),
-    ("qualificacoes", "Qualificações", "fa-graduation-cap"),
     ("skills", "Skills", "fa-lightbulb"),
+    ("projetos", "Projetos", "fa-layer-group"),
 )
