@@ -10,14 +10,14 @@ def create_navigation():
     return html.Nav(
         id="top-navigation", className="top-navigation collapsed",
         **{"aria-label": "Navegação principal"},
-        children=[
+        children=html.Div(className="navigation-options", children=[
             html.Button([
                 html.Span(f"0{index + 1}", className="nav-number", **{"aria-hidden": "true"}),
                 html.Span(label, className="nav-label"),
                 html.Span("↗", className="nav-arrow", **{"aria-hidden": "true"}),
             ], id=f"nav-{section}", className="nav-item", n_clicks=0, type="button")
             for index, (section, label, _) in enumerate(NAV_ITEMS)
-        ],
+        ]),
     )
 
 

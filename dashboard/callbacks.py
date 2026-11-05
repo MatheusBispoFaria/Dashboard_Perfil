@@ -115,7 +115,8 @@ def register_callbacks(app, data, sections):
     )
     def render_content(active_section):
         section = sections.get(active_section, sections[DEFAULT_SECTION])
-        return section() if callable(section) else section
+        content = section() if callable(section) else section
+        return html.Div(content, key=active_section, className="section-transition")
 
     @app.callback(
         [
