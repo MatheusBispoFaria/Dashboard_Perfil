@@ -212,7 +212,7 @@ def create_ai_approach():
 
                 **{"aria-hidden": "true"}),
 
-            html.H2("Como desenvolvo com IA (Inteligência Artificial)", className="project-title ai-approach-title"),
+            html.H2("Como desenvolvo com IA", className="project-title ai-approach-title"),
 
         ]),
 

@@ -854,7 +854,7 @@ button:focus-visible, a:focus-visible {
 
 
 
-/* Abordagem de IA: mesma escala de leitura do resumo profissional. */
+/* Abordagem de IA: mesma escala de leitura dos textos de apresentação e do estudo. */
 
 .ai-approach { display: grid; gap: 24px; border: 0; margin: 0; padding: 0; }
 
@@ -872,19 +872,19 @@ button:focus-visible, a:focus-visible {
 
 }
 
-.ai-approach-title { margin: 0; line-height: 1.35; }
+.ai-approach-title { margin: 0; font-size: 17px; font-weight: 550; line-height: 1.35; }
 
 .ai-approach-copy {
 
-    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid; grid-template-columns: minmax(0, 1fr);
 
-    gap: 32px;
+    gap: 18px;
 
 }
 
 .ai-approach-copy p {
 
-    margin: 0; font-size: 1rem; line-height: 1.75; color: #6c757d;
+    margin: 0; font-size: 14px; line-height: 1.85; color: #667286;
 
 }
 
@@ -900,17 +900,16 @@ button:focus-visible, a:focus-visible {
 
     .ai-approach-heading { align-items: flex-start; gap: 11px; }
 
-    .ai-approach-title { font-size: 21px; }
 
     .ai-approach-icon { width: 36px; height: 36px; border-radius: 12px; font-size: 15px; }
 
 }
 
 /* Perfil, qualificações e exploração socioeconômica */
-.profile-summary { max-width: 1100px; }
+.profile-summary { width: 100%; max-width: none; }
 .profile-subtitle { color: #737b8b; margin: 8px 0 28px; font-size: 14px; }
-.profile-copy { max-width: 95ch; margin-bottom: 28px; }
-.profile-copy p { font-size: 16px; line-height: 1.85; color: #626c7e; margin: 0 0 18px; }
+.profile-copy { max-width: none; margin-bottom: 28px; }
+.profile-copy p { font-size: 14px; line-height: 1.85; color: #667286; margin: 0 0 18px; }
 .qualifications-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .qualification-skill-group { margin-top: 22px; }
 .qualification-skill-group h3, .qualification-degree { font-size: 14px; font-weight: 550; margin: 0 0 13px; line-height: 1.6; }
