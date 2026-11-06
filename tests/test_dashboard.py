@@ -225,12 +225,20 @@ class ApplicationTests(unittest.TestCase):
         self.assertNotIn("Ao lado de outros dois integrantes", text)
         self.assertIn("Minha experiência", text)
 
-    def test_qualifications_remain_accessible_inside_about(self):
-        rendered = self.call_callback("tab-content-container.children", ["quem-sou-eu"])
-        content = json.dumps(rendered, ensure_ascii=False)
-        self.assertIn("Formação e qualificações", content)
-        self.assertIn("Certificações", content)
-        self.assertIn("Chefon Ai · 5 integrantes", content)
+    def test_profile_and_qualifications_have_separate_content(self):
+        about = json.dumps(self.call_callback("tab-content-container.children", ["quem-sou-eu"]), ensure_ascii=False)
+        self.assertIn("Software Engineering Student", about)
+        self.assertNotIn("Full Stack Developer", about)
+        self.assertNotIn("Como desenvolvo com IA", about)
+        self.assertIn("dezembro de 2028", about)
+        qualifications = json.dumps(self.call_callback("tab-content-container.children", ["skills"]), ensure_ascii=False)
+        self.assertIn("Qualificações", qualifications)
+        self.assertIn("Certificações", qualifications)
+        self.assertIn("Como desenvolvo com IA", qualifications)
+        self.assertNotIn("B1", qualifications)
+        projects = json.dumps(self.call_callback("tab-content-container.children", ["projetos"]), ensure_ascii=False)
+        self.assertNotIn("Como desenvolvo com IA", projects)
+        self.assertEqual(next(label for section, label, _ in NAV_ITEMS if section == "skills"), "Qualificações")
 
     def test_each_arrow_opens_its_analysis_modal(self):
         for chart, title in CARD_TITLES.items():

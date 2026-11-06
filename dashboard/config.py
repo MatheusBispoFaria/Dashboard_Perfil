@@ -18,6 +18,6 @@ ANALYSIS_ITEMS = (
 NAV_ITEMS = (
     ("analise-dados", "Análises de Dados", "fa-chart-line"),
     ("quem-sou-eu", "Quem Sou Eu", "fa-user"),
-    ("skills", "Skills", "fa-lightbulb"),
+    ("skills", "Qualificações", "fa-lightbulb"),
     ("projetos", "Projetos", "fa-layer-group"),
 )

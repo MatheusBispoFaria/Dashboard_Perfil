@@ -452,3 +452,17 @@ button:focus-visible, a:focus-visible {
     .ai-approach-title { font-size: 21px; }
     .ai-approach-icon { width: 36px; height: 36px; border-radius: 12px; font-size: 15px; }
 }
+
+.profile-summary { max-width: 1100px; }
+.profile-subtitle { color: #737b8b; margin: 8px 0 28px; font-size: 14px; }
+.profile-copy { max-width: 95ch; margin-bottom: 28px; }
+.profile-copy p { font-size: 16px; line-height: 1.85; color: #626c7e; margin: 0 0 18px; }
+.qualifications-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.qualification-skill-group { margin-top: 22px; }
+.qualification-skill-group h3, .qualification-degree { font-size: 14px; font-weight: 550; margin: 0 0 13px; line-height: 1.6; }
+.qualification-skill-group .project-technologies { margin: 0; }
+.qualifications-page .dash-card p, .qualifications-page .dash-card li { color: #6d7788; font-size: 14px; line-height: 1.85; }
+.qualification-languages, .qualification-ai { margin-top: 20px; }
+.qualification-languages p { margin-bottom: 0; }
+
+@media (max-width: 720px) { .qualifications-grid { grid-template-columns: minmax(0, 1fr); } }
