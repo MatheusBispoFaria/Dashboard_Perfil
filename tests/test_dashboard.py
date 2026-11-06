@@ -97,7 +97,7 @@ class ApplicationTests(unittest.TestCase):
             ],
             "state": [
                 {**spec, "value": value}
-                for spec, value in zip(callback["state"], states or [])
+                for spec, value in zip(callback["state"], states if states is not None else [None] * len(callback["state"]))
             ],
             "changedPropIds": list(changed),
         })
@@ -249,6 +249,7 @@ class ApplicationTests(unittest.TestCase):
                     "analysis-modal.is_open", [clicks], [f"{clicked}.n_clicks"]
                 )
                 self.assertTrue(response["analysis-modal"]["is_open"])
+                self.assertIn("Como ler o gráfico", json.dumps(response["analysis-modal-body"], ensure_ascii=False))
                 self.assertEqual(response["analysis-modal-title"]["children"], f"Análise de dados · {title}")
 
     def test_reset_filters_restores_full_dataset_ranges(self):
@@ -257,37 +258,31 @@ class ApplicationTests(unittest.TestCase):
         for field in ("filtro-renda", "filtro-vinculo", "filtro-escolaridade"):
             self.assertEqual(response[field]["value"], [])
         self.assertEqual(response["filtro-ic"]["value"], "off")
+        self.assertEqual(response["filtro-genero"]["value"], [])
+        self.assertEqual(response["filtro-extremos"]["value"], ["iqr"])
         self.assertEqual(response["filtro-idade"]["value"], [int(data["age"].min()), int(data["age"].max())])
         self.assertEqual(response["filtro-jornada"]["value"], [int(data["hours_per_week"].min()), int(data["hours_per_week"].max())])
 
     def test_dashboard_updates_for_each_confidence_level(self):
         data = load_dataset()
-        expected = data["renda_alta"].mean() * 100
         for confidence in ("off", "90", "95", "99"):
             with self.subTest(confidence=confidence):
-                response = self.call_callback(
-                    "graph-ocupacoes.figure", [None, None, None, None, None, confidence]
-                )
-                self.assertEqual(len(response), 10)
-                self.assertEqual(response["selection-summary"]["children"], f"{len(data):,} registros na seleção".replace(",", "."))
-                gauge = response["graph-velocimetro"]["figure"]
-                self.assertAlmostEqual(gauge["data"][0]["value"], expected)
+                response = self.call_callback("graph-ocupacoes.figure", [None, None, None, None, None, None, [], confidence])
+                self.assertEqual(response["selection-summary"]["children"], "32.561 registros na seleção")
+                pie = response["graph-renda"]["figure"]
+                self.assertEqual(pie["data"][0]["values"], [24720, 7841])
+                self.assertNotIn("graph-velocimetro", response)
                 if confidence != "off":
-                    self.assertIn(f"IC {confidence}%", gauge["layout"]["annotations"][0]["text"])
+                    self.assertIn(f"IC {confidence}%", pie["layout"]["annotations"][0]["text"])
+                self.assertTrue(response["graph-idade-renda"]["figure"]["data"][0]["name"].startswith("Até US$"))
 
     def test_empty_selection_clears_figures(self):
-        response = self.call_callback(
-            "graph-ocupacoes.figure", [["inexistente"], None, None, None, None, "95"]
-        )
-        self.assertEqual(len(response), 10)
+        response = self.call_callback("graph-ocupacoes.figure", [["inexistente"], None, None, None, None, None, ["iqr"], "95"])
         self.assertEqual(response["selection-summary"]["children"], "0 registros na seleção")
         for key, value in response.items():
             if key.startswith("graph-"):
                 self.assertEqual(value["figure"]["data"], [])
-        self.assertEqual(
-            response["top-escolaridade-container"]["children"]["props"]["children"],
-            "Sem dados para esta seleção.",
-        )
+                self.assertIn("Sem dados", value["figure"]["layout"]["annotations"][0]["text"])
 
     def test_entry_point_works_from_another_directory(self):
         environment = os.environ.copy()

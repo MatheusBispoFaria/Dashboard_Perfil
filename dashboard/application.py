@@ -16,6 +16,7 @@ from .layouts.shell import create_main_layout
 from .layouts.projects import create_projects_layout
 from .cp5.layout import create_cp5_layout
 from .cp5.callbacks import register_cp5_callbacks
+from .socio_callbacks import register_socio_callbacks
 
 
 def create_app():
@@ -42,5 +43,6 @@ def create_app():
         app.get_asset_url("profile.png"), app.get_asset_url("chrome-ribbon.svg"),
     )
     register_callbacks(app, data, sections)
+    register_socio_callbacks(app, data)
     register_cp5_callbacks(app)
     return app

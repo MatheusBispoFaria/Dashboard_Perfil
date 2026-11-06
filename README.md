@@ -2,7 +2,8 @@
 
 Dashboard em Python com Dash, Plotly e Bootstrap. Reúne o portfólio profissional
 e a análise interativa do Census Income Dataset, com filtros de renda, vínculo,
-escolaridade, idade e jornada de trabalho, além de intervalos de confiança.
+escolaridade, gênero, idade e jornada de trabalho, além de exclusão opcional de
+extremos por IQR e intervalos de confiança.
 Inclui também uma aba interativa do CP5 de Data Science e a apresentação de
 projetos e experiências de desenvolvimento.
 
@@ -32,6 +33,10 @@ dashboardprofissional/
 │   ├── theme.py                 # Paleta e estilo dos gráficos
 │   ├── charts.py                # Construção dos gráficos
 │   ├── callbacks.py             # Navegação e atualização da tela
+│   ├── labels.py                # Traduções das categorias socioeconômicas
+│   ├── socioeconomic.py         # Agregações, busca e paginação
+│   ├── interpretations.py       # Leituras dos gráficos e referências
+│   ├── socio_callbacks.py       # Recorte compartilhado e exportação
 │   ├── content.py               # Projetos e relatos pessoais
 │   ├── cp5/                     # Dados, cálculos, gráficos e interface do CP5
 │   └── layouts/
@@ -39,9 +44,9 @@ dashboardprofissional/
 │       ├── shell.py             # Cabeçalho, navegação no topo e janela de análise
 │       ├── cards.py             # Cartões dos gráficos e botões de análise
 │       ├── filters.py           # Controles dos filtros
-│       ├── analysis.py          # Tela de análise e resumo de escolaridade
+│       ├── analysis.py          # Tela de análise e consulta à base
 │       ├── projects.py          # Apresentação dos projetos e experiências
-│       └── profile.py           # Apresentação, qualificações e skills
+│       └── profile.py           # Apresentação e qualificações
 ├── scripts/                     # Reprodução da preparação dos dados do CP5
 └── tests/                       # Verificação do dashboard e da integração CP5
 ```
@@ -79,7 +84,7 @@ gunicorn app:server
 - **Estilos da interface:** `assets/style.css`.
 - **Cores e estilos dos gráficos:** `dashboard/theme.py`.
 - **Gráficos e cálculos:** `dashboard/charts.py` e `dashboard/statistics.py`.
-- **Filtros:** `dashboard/layouts/filters.py`, `dashboard/data.py` e `dashboard/callbacks.py`.
+- **Filtros:** `dashboard/layouts/filters.py`, `dashboard/data.py` e `dashboard/socio_callbacks.py`.
 - **Base de dados:** `data/adult_clean.csv`, mantendo as colunas esperadas por `load_dataset`.
 
 A planilha em `docs/` é um material de apoio e não é carregada pela aplicação.
@@ -89,7 +94,7 @@ Cada instância criada por `create_app()` tem seus próprios dados e callbacks.
 
 A abertura exibe **Matheus** em uma página de apresentação escura, com tipografia
 grande e um elemento metálico. A seta abaixo do nome revela quatro opções:
-**Análises de Dados**, **Quem sou Eu**, **Skills** e **Projetos**. O nome no
+**Análises de Dados**, **Quem Sou Eu**, **Qualificações** e **Projetos**. O nome no
 cabeçalho retorna à entrada e recolhe o menu.
 
 O dashboard utiliza a largura disponível, com cartões arredondados e uma paleta
@@ -97,34 +102,35 @@ em azul, turquesa e tons neutros, sobre um gradiente diagonal de branco e cinza.
 Os cartões se reorganizam em telas menores.
 As análises **Renda e perfil socioeconômico** e **Despesas Públicas · ES** são
 alternadas dentro de **Análises de Dados**, mantendo os filtros de cada dashboard
-independentes. **Formação e qualificações** permanece acessível em um bloco
-expansível de **Quem sou Eu**.
+independentes. **Qualificações** reúne competências, formação, certificações,
+idiomas e, exclusivamente nessa página, a seção **Como desenvolvo com IA**.
 
-Cada um dos oito gráficos e o resumo de escolaridade têm um botão de seta (↗)
-que abre uma janela com o título correspondente. O corpo da janela está vazio,
-reservado para a futura análise dos dados. Ela fecha pelo botão de fechar,
-pela tecla Escape ou ao clicar fora.
+A análise socioeconômica contém seis gráficos: renda, renda por gênero,
+escolaridade, ocupações, idade por renda e jornada por idade e renda.
+As setas abrem interpretações calculadas para a seleção atual, acompanhadas
+por uma referência à base completa. A janela fecha pelo botão, pela tecla
+Escape ou ao clicar fora.
 
-Os seis filtros continuam disponíveis. O botão **Limpar filtros** restaura a
-seleção inicial e a contagem de registros acompanha a seleção atual.
+O IQR vem ativado, com limites fixos calculados na base original para idade e
+jornada. A tela informa quantos registros foram excluídos e permite desativá-lo.
+A consulta da base acompanha os filtros, tem paginação, ordenação e busca,
+e exporta todos os resultados em CSV. Consulte
+[metodologia socioeconômica](docs/analise-socioeconomica.md) para os denominadores,
+limites, dados de referência e interpretação dos intervalos.
 
 ## Projetos e experiências
 
 A aba **Projetos** apresenta Compiler-AI (TOTVS), Site Passa Bola, SkillHub e
-FIAP Bank. Em **Qualificações**, Compiler-AI tem destaque pelas sprints de 2026
-para a TOTVS; Site Passa Bola aparece como experiência de 2025, e SkillHub como
-o segundo TCC semestral, com o tema Futuro do Trabalho. Os relatos pessoais
-ficam em `dashboard/content.py` e são compartilhados entre as duas seções.
+FIAP Bank. Os relatos pessoais ficam em `dashboard/content.py`.
 
 Em Projetos, todos os cartões começam recolhidos. Ao selecionar um projeto,
 o cartão se expande com descrição, participação, tecnologias, links e relato.
 Os grupos são identificados como **Chefon Ai, com cinco integrantes**, no
 Compiler-AI, e **Novus Capital, com três integrantes**, em Passa Bola e SkillHub.
 
-**Quem Sou Eu** e **Projetos** também apresentam a abordagem de desenvolvimento
-assistido por IA: compreensão do problema, estruturação da solução, elaboração
-de prompts e avaliação e correção do código gerado. As competências correspondentes
-aparecem em **Skills**.
+**Qualificações** apresenta a abordagem de desenvolvimento assistido por IA:
+compreensão do problema, estruturação da solução, elaboração de prompts e
+avaliação e correção do código gerado.
 
 A aba **Despesas Públicas · ES** reúne os dados de despesas do Espírito Santo de
 2024 e 2025, com filtros próprios, indicadores, oito gráficos, estatísticas e

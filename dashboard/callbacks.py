@@ -4,10 +4,9 @@ import dash
 from dash import ALL, Input, Output, State, html
 from dash.exceptions import PreventUpdate
 
-from .charts import create_dashboard_figures
 from .config import ANALYSIS_ITEMS, DEFAULT_SECTION, NAV_ITEMS
-from .data import filter_dataset
-from .layouts.analysis import create_education_summary
+from .data import select_dataset
+from .interpretations import analysis_body
 from .layouts.cards import CARD_TITLES
 from .cp5.layout import GRAPHS as CP5_GRAPHS
 
@@ -38,35 +37,24 @@ def register_callbacks(app, data, sections):
     @app.callback(
         Output("analysis-modal", "is_open"),
         Output("analysis-modal-title", "children"),
+        Output("analysis-modal-body", "children"),
         Input({"type": "open-analysis", "chart": ALL}, "n_clicks"),
+        State("socio-selection", "data"),
         prevent_initial_call=True,
     )
-    def open_analysis(clicks):
+    def open_analysis(clicks, selection):
         triggered = dash.ctx.triggered_id
         if not any(clicks) or not isinstance(triggered, dict):
             raise PreventUpdate
         chart = triggered.get("chart")
         if not isinstance(chart, str) or chart not in analysis_titles:
             raise PreventUpdate
-        return True, f"Análise de dados · {analysis_titles[chart]}"
-
-    @app.callback(
-        Output("filtro-renda", "value"),
-        Output("filtro-vinculo", "value"),
-        Output("filtro-escolaridade", "value"),
-        Output("filtro-idade", "value"),
-        Output("filtro-jornada", "value"),
-        Output("filtro-ic", "value"),
-        Input("btn-reset-filters", "n_clicks"),
-        prevent_initial_call=True,
-    )
-    def reset_filters(_n_clicks):
-        return (
-            [], [], [],
-            [int(data["age"].min()), int(data["age"].max())],
-            [int(data["hours_per_week"].min()), int(data["hours_per_week"].max())],
-            "off",
-        )
+        body = []
+        if chart in CARD_TITLES:
+            params = selection or {"outliers": ["iqr"], "confidence": "off"}
+            selected, removed, before = select_dataset(data, **params)
+            body = analysis_body(chart, data, selected, params.get("confidence") or "off", removed, before)
+        return True, f"Análise de dados · {analysis_titles[chart]}", body
 
     @app.callback(
         [Output("active-section", "data")]
@@ -118,34 +106,3 @@ def register_callbacks(app, data, sections):
         content = section() if callable(section) else section
         return html.Div(content, key=active_section, className="section-transition")
 
-    @app.callback(
-        [
-            Output("graph-ocupacoes", "figure"),
-            Output("graph-renda", "figure"),
-            Output("graph-genero", "figure"),
-            Output("graph-idade-renda", "figure"),
-            Output("graph-horas-idade", "figure"),
-            Output("graph-velocimetro", "figure"),
-            Output("graph-donut-homens", "figure"),
-            Output("graph-donut-mulheres", "figure"),
-            Output("top-escolaridade-container", "children"),
-            Output("selection-summary", "children"),
-        ],
-        [
-            Input("filtro-renda", "value"),
-            Input("filtro-vinculo", "value"),
-            Input("filtro-escolaridade", "value"),
-            Input("filtro-idade", "value"),
-            Input("filtro-jornada", "value"),
-            Input("filtro-ic", "value"),
-        ],
-        prevent_initial_call=False,
-    )
-    def update_dashboard(income, workclass, education, age, hours, confidence):
-        filtered = filter_dataset(data, income, workclass, education, age, hours)
-        figures = create_dashboard_figures(filtered, confidence)
-        count = f"{len(filtered):,}".replace(",", ".")
-        summary = f"{count} registros na seleção"
-        if filtered.empty:
-            return [*figures, html.Div("Sem dados para esta seleção."), summary]
-        return (*figures, create_education_summary(filtered, confidence), summary)

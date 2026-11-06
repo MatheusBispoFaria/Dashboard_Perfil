@@ -1,160 +1,169 @@
-"""Construção dos oito gráficos do dashboard, sem dependência dos callbacks."""
+"""Seis visualizações complementares da seleção socioeconômica."""
 
-import plotly.express as px
+import textwrap
+import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 
-from .statistics import CONFIDENCE_Z, proportion_interval
-from .theme import C_BLUE, C_CYAN, C_LIGHT_BLUE, C_NAVY, LAYOUT_CLEAN
+from .labels import EDUCATION, EDUCATION_ORDER, INCOME, OCCUPATION, SEX, label
+from .socioeconomic import hours_summary, occupation_summary, wilson_interval
+from .statistics import CONFIDENCE_Z
+from .theme import C_BLUE, C_CYAN, LAYOUT_CLEAN
+
+INCOME_COLORS = {"<=50K": C_BLUE, ">50K": C_CYAN}
+
+
+def base_figure(height=300):
+    fig = go.Figure()
+    fig.update_layout(**LAYOUT_CLEAN, height=height, autosize=True)
+    fig.update_layout(margin=dict(l=48, r=18, t=74, b=52),
+                      legend=dict(orientation="h", x=0, y=1.02, yanchor="bottom", traceorder="normal", font_size=10),
+                      hovermode="closest", separators=",.")
+    return fig
+
+
+def empty_figure(height=300):
+    fig = base_figure(height)
+    fig.add_annotation(text="Sem dados para esta seleção.", x=.5, y=.5,
+                       xref="paper", yref="paper", showarrow=False)
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(visible=False)
+    return fig
+
+
+def create_income_figure(data, confidence="off"):
+    fig = base_figure(270)
+    categories = [key for key in INCOME if data["income"].eq(key).any()]
+    counts = [int(data["income"].eq(key).sum()) for key in categories]
+    fig.add_trace(go.Pie(labels=[INCOME[key] for key in categories], values=counts,
+                        marker_colors=[INCOME_COLORS[key] for key in categories], hole=.55,
+                        sort=False, textinfo="percent", textfont_size=13,
+                        hovertemplate="%{label}<br>Registros: %{value:,}<br>Participação na seleção: %{percent}<extra></extra>"))
+    fig.update_layout(margin=dict(l=12, r=12, t=16, b=68),
+                      legend=dict(orientation="h", x=.5, xanchor="center", y=-.06, yanchor="top"))
+    if confidence != "off":
+        lo, hi = wilson_interval(int(data["renda_alta"].sum()), len(data), CONFIDENCE_Z[confidence])
+        fig.add_annotation(text=f"IC {confidence}% · renda >50K<br>{lo:.1f}% a {hi:.1f}%",
+                           x=.5, y=.5, xref="paper", yref="paper", showarrow=False,
+                           font=dict(size=10, color="#535d70"))
+    return fig
+
+
+def create_gender_figure(data, confidence="off"):
+    fig = base_figure(270)
+    groups = [value for value in SEX if data["sex"].eq(value).any()]
+    totals = [int(data["sex"].eq(value).sum()) for value in groups]
+    for income, color in INCOME_COLORS.items():
+        counts = [int((data["sex"].eq(sex) & data["income"].eq(income)).sum()) for sex in groups]
+        custom = []
+        for sex, count, total in zip(groups, counts, totals):
+            lo, hi = wilson_interval(count, total, CONFIDENCE_Z.get(confidence, 1.96))
+            interval = f"IC {confidence}% (Wilson): {lo:.1f}% a {hi:.1f}%" if confidence != "off" else ""
+            custom.append([total, count/total*100, total/len(data)*100, interval])
+        fig.add_trace(go.Bar(name=INCOME[income], x=[SEX[value] for value in groups], y=counts,
+                            marker_color=color, customdata=custom,
+                            hovertemplate=("%{x}<br>%{fullData.name}<br>Registros: %{y:,}"
+                                           "<br>Total do grupo: %{customdata[0]:,}"
+                                           "<br>Faixa dentro do grupo: %{customdata[1]:.1f}%"
+                                           "<br>Grupo na seleção: %{customdata[2]:.1f}%"
+                                           "<br>%{customdata[3]}<extra></extra>")))
+    fig.update_layout(barmode="stack")
+    fig.update_yaxes(title="Registros")
+    return fig
+
+
+def _wrapped(text, width=24):
+    return "<br>".join(textwrap.wrap(text, width=width))
+
+
+def _count_bars(data, field, categories, mapping, height):
+    fig = base_figure(height)
+    for income, color in INCOME_COLORS.items():
+        counts, custom = [], []
+        for category in categories:
+            group = data[data[field].eq(category)]
+            count = int(group["income"].eq(income).sum())
+            counts.append(count)
+            custom.append([category, len(group), count/len(group)*100, float(group["age"].mean())])
+        fig.add_trace(go.Bar(name=INCOME[income], x=counts,
+                            y=[_wrapped(label(value, mapping)) for value in categories],
+                            orientation="h", marker_color=color, customdata=custom,
+                            hovertemplate=("%{y}<br>Categoria original: %{customdata[0]}"
+                                           "<br>%{fullData.name}<br>Registros: %{x:,}"
+                                           "<br>Total da categoria: %{customdata[1]:,}"
+                                           "<br>Faixa dentro da categoria: %{customdata[2]:.1f}%"
+                                           "<br>Idade média da categoria: %{customdata[3]:.1f} anos<extra></extra>")))
+    fig.update_layout(barmode="stack", margin=dict(l=165, r=18, t=74, b=48))
+    fig.update_yaxes(autorange="reversed", showgrid=False, tickfont_size=10)
+    fig.update_xaxes(title="Registros", showgrid=True, gridcolor="#f0f1f7")
+    return fig
 
 
 def create_occupation_figure(data):
-    occ_counts = (
-        data[data["occupation"] != "nan"]["occupation"]
-        .value_counts().head(10).reset_index()
-    )
-    fig_bar = px.bar(
-        occ_counts, x="occupation", y="count", color_discrete_sequence=[C_NAVY]
-    )
-    fig_bar.update_layout(**LAYOUT_CLEAN, height=238)
-    fig_bar.update_traces(marker_line_width=0, hovertemplate="%{x}: <b>%{y}</b>")
-    fig_bar.update_xaxes(title="", tickangle=-35)
-    fig_bar.update_yaxes(title="")
-    return fig_bar
+    categories = occupation_summary(data)["occupation"].tolist()
+    if not categories:
+        return empty_figure(410)
+    return _count_bars(data, "occupation", categories, OCCUPATION, 410)
 
 
-def create_income_figure(data):
-    income_counts = data["income"].value_counts().reset_index()
-    fig_pie = px.pie(
-        income_counts, values="count", names="income", color="income", hole=0,
-        color_discrete_map={"<=50K": C_BLUE, ">50K": C_CYAN},
-    )
-    fig_pie.update_layout(
-        **LAYOUT_CLEAN, height=178, showlegend=True,
-        legend=dict(orientation="h", y=-0.02, x=0.5, xanchor="center", font_size=9),
-    )
-    fig_pie.update_traces(textinfo="percent", textfont_size=10, marker_line_width=0)
-    return fig_pie
-
-
-def create_gender_figure(data):
-    sex_counts = data["sex"].value_counts().reset_index()
-    fig_donut = px.pie(
-        sex_counts, values="count", names="sex", color="sex", hole=0.72,
-        color_discrete_map={"Male": C_NAVY, "Female": C_LIGHT_BLUE},
-    )
-    fig_donut.update_layout(
-        **LAYOUT_CLEAN, height=178, showlegend=True,
-        legend=dict(orientation="h", y=-0.02, x=0.5, xanchor="center", font_size=9),
-    )
-    fig_donut.add_annotation(
-        text="GÊNERO", x=0.5, y=0.5, font_size=10,
-        font_weight="normal", showarrow=False, font_color="#64748b",
-    )
-    fig_donut.update_traces(textinfo="percent", textposition="inside", textfont_size=10)
-    return fig_donut
+def create_education_figure(data):
+    observed = set(data["education"])
+    categories = [value for value in EDUCATION_ORDER if value in observed]
+    categories += sorted(observed - set(categories))
+    return _count_bars(data, "education", categories, EDUCATION, 490)
 
 
 def create_age_income_figure(data):
-    age_income = data.groupby(["age", "income"]).size().reset_index(name="count")
-    fig_area = px.area(
-        age_income, x="age", y="count", color="income",
-        color_discrete_map={"<=50K": C_LIGHT_BLUE, ">50K": C_NAVY},
-    )
-    fig_area.update_layout(**LAYOUT_CLEAN, height=238, showlegend=False)
-    fig_area.update_xaxes(title="", showgrid=False)
-    fig_area.update_yaxes(title="")
-    return fig_area
+    fig = base_figure(310)
+    ages = list(range(int(data["age"].min()), int(data["age"].max()) + 1))
+    for income, color in INCOME_COLORS.items():
+        counts = data.loc[data["income"].eq(income)].groupby("age").size().reindex(ages, fill_value=0)
+        fig.add_trace(go.Scatter(x=ages, y=counts, mode="lines", stackgroup="income",
+                                name=INCOME[income], line=dict(color=color, width=1.7),
+                                fillcolor=color,
+                                hovertemplate="Idade: %{x} anos<br>%{fullData.name}<br>Registros: %{y:,}<extra></extra>"))
+    fig.update_xaxes(title="Idade (anos)")
+    fig.update_yaxes(title="Registros")
+    return fig
 
 
 def create_hours_age_figure(data, confidence="off"):
-    if confidence != "off":
-        hours_age = (
-            data.groupby("age")["hours_per_week"]
-            .agg(["mean", "std", "count"]).reset_index()
-        )
-        hours_age["std"] = hours_age["std"].fillna(0)
-        hours_age["erro_ic"] = (
-            CONFIDENCE_Z[confidence] * hours_age["std"] / hours_age["count"].pow(0.5)
-        )
-        fig_line = px.line(hours_age, x="age", y="mean", markers=True, error_y="erro_ic")
-    else:
-        hours_age = data.groupby("age")["hours_per_week"].mean().reset_index()
-        fig_line = px.line(hours_age, x="age", y="hours_per_week", markers=True)
-    fig_line.update_traces(line_color=C_BLUE, marker=dict(size=4, color=C_CYAN))
-    fig_line.update_layout(**LAYOUT_CLEAN, height=200, showlegend=False)
-    fig_line.update_xaxes(title="", showgrid=False)
-    fig_line.update_yaxes(title="")
-    return fig_line
-
-
-def create_income_gauge(data, confidence="off"):
-    pct_alta = data["renda_alta"].mean() * 100
-    fig_gauge = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=pct_alta,
-        number={
-            "suffix": "%", "valueformat": ".1f",
-            "font": {"size": 30, "color": "#ffffff", "weight": "normal"},
-        },
-        gauge={
-            "axis": {"range": [0, 100], "visible": False},
-            "bar": {"color": C_CYAN, "thickness": 0.75},
-            "bgcolor": "#e2e8f0",
-            "steps": [
-                {"range": [0, 50], "color": "#485256"},
-                {"range": [50, 100], "color": "#373e42"},
-            ],
-        },
-    ))
-    fig_gauge.update_layout(**LAYOUT_CLEAN, height=178)
-    if confidence != "off":
-        lower, upper = proportion_interval(
-            data["renda_alta"].sum(), len(data), confidence
-        )
-        fig_gauge.add_annotation(
-            text=f"IC {confidence}%: {lower:.1f}% – {upper:.1f}%",
-            x=0.5, y=0.02, showarrow=False, font_size=9, font_color="#cfdddd",
-        )
-    return fig_gauge
-
-
-def create_gender_income_figure(data, sex, color, confidence="off"):
-    group_data = data[data["sex"] == sex]
-    percentage = group_data["renda_alta"].mean() * 100 if not group_data.empty else 0
-    figure = go.Figure(go.Pie(
-        values=[percentage, 100 - percentage], hole=0.75,
-        marker_colors=[color, "#e2e8f0"],
-    ))
-    figure.update_layout(**LAYOUT_CLEAN, height=200, showlegend=False)
-    figure.update_traces(textinfo="none", hovertemplate="%{value:.1f}%<extra></extra>")
-    label = f"{percentage:.1f}%"
-    if confidence != "off" and not group_data.empty:
-        lower, upper = proportion_interval(
-            group_data["renda_alta"].sum(), len(group_data), confidence
-        )
-        label += (
-            f"<br><span style='font-size:8px'>"
-            f"IC {confidence}%: {lower:.1f}–{upper:.1f}%</span>"
-        )
-    figure.add_annotation(
-        text=label, x=0.5, y=0.5, font_size=24,
-        font_weight="normal", showarrow=False, font_color=color,
-    )
-    return figure
+    fig = base_figure(310)
+    summary = hours_summary(data)
+    for income, color in INCOME_COLORS.items():
+        group = summary.loc[summary["income"].eq(income)].sort_values("age")
+        if group.empty:
+            continue
+        # Não liga dois pontos através de uma idade sem observações.
+        ages = list(range(int(data["age"].min()), int(data["age"].max()) + 1))
+        group = group.set_index("age").reindex(ages)
+        counts = group["count"].fillna(0).astype(int)
+        warnings = ["Grupo pequeno (menos de 5 registros)" if 0 < count < 5 else "" for count in counts]
+        errors = None
+        if confidence != "off":
+            error = (CONFIDENCE_Z[confidence] * group["std"] / group["count"].pow(.5))
+            errors = dict(type="data", array=error.where(group["count"].ge(2), np.nan), visible=True)
+        fig.add_trace(go.Scatter(x=ages, y=group["mean"], mode="lines+markers", connectgaps=False,
+                                name=INCOME[income], line=dict(color=color, width=2),
+                                marker=dict(color=color, size=[7 if 0<count<5 else 4 for count in counts],
+                                            symbol=["circle-open" if 0<count<5 else "circle" for count in counts]),
+                                customdata=list(zip(counts, warnings)), error_y=errors,
+                                hovertemplate=("Idade: %{x} anos<br>%{fullData.name}"
+                                               "<br>Média: %{y:.1f} h/semana"
+                                               "<br>Registros nesta idade e renda: %{customdata[0]}"
+                                               "<br>%{customdata[1]}<extra></extra>")))
+    fig.update_xaxes(title="Idade (anos)")
+    fig.update_yaxes(title="Média de horas/semana", rangemode="tozero")
+    return fig
 
 
 def create_dashboard_figures(data, confidence="off"):
-    """Retorna os gráficos na ordem esperada pelos componentes da tela."""
-    if data.empty:
-        return tuple(go.Figure().update_layout(**LAYOUT_CLEAN) for _ in range(8))
-
-    return (
-        create_occupation_figure(data),
-        create_income_figure(data),
-        create_gender_figure(data),
-        create_age_income_figure(data),
-        create_hours_age_figure(data, confidence),
-        create_income_gauge(data, confidence),
-        create_gender_income_figure(data, "Male", C_CYAN, confidence),
-        create_gender_income_figure(data, "Female", C_BLUE, confidence),
-    )
+    builders = {
+        "graph-renda": lambda: create_income_figure(data, confidence),
+        "graph-genero": lambda: create_gender_figure(data, confidence),
+        "graph-escolaridade": lambda: create_education_figure(data),
+        "graph-ocupacoes": lambda: create_occupation_figure(data),
+        "graph-idade-renda": lambda: create_age_income_figure(data),
+        "graph-horas-idade": lambda: create_hours_age_figure(data, confidence),
+    }
+    return {key: empty_figure() if data.empty else builder() for key, builder in builders.items()}
