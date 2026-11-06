@@ -29,13 +29,29 @@ def selection_params(values):
 
 def register_socio_callbacks(app, data):
     @app.callback(
+        Output("socio-filters-panel", "is_open"), Output("socio-description-panel", "is_open"),
+        Output("socio-toggle-filters", "aria-expanded"), Output("socio-toggle-description", "aria-expanded"),
+        Input("socio-toggle-filters", "n_clicks"), Input("socio-toggle-description", "n_clicks"),
+        State("socio-filters-panel", "is_open"), State("socio-description-panel", "is_open"),
+        prevent_initial_call=True,
+    )
+    def toggle_panels(_filters_clicks, _description_clicks, filters_open, description_open):
+        if ctx.triggered_id == "socio-toggle-filters":
+            filters_open, description_open = not filters_open, False
+        elif ctx.triggered_id == "socio-toggle-description":
+            filters_open, description_open = False, not description_open
+        else:
+            raise PreventUpdate
+        return filters_open, description_open, str(filters_open).lower(), str(description_open).lower()
+
+    @app.callback(
         [Output(component, "value") for component, _ in FILTERS],
         Input("btn-reset-filters", "n_clicks"), prevent_initial_call=True,
     )
     def reset_filters(_clicks):
         return ([], [], [], [int(data["age"].min()), int(data["age"].max())],
                 [int(data["hours_per_week"].min()), int(data["hours_per_week"].max())],
-                [], ["iqr"], "off")
+                [], [], "off")
 
     @app.callback(
         [Output(chart, "figure") for chart in CARD_TITLES]
@@ -48,11 +64,10 @@ def register_socio_callbacks(app, data):
         selected, removed, before = select_dataset(data, **params)
         figures = create_dashboard_figures(selected, params.get("confidence") or "off")
         if "iqr" in (params.get("outliers") or []):
-            note = (f"IQR ativado: {integer(removed)} de {integer(before)} registros excluídos por idade ou jornada. "
-                    f"Os {integer(len(selected))} restantes alimentam todos os gráficos e a consulta da base. "
-                    "Limites fixos: idade até 78 anos; jornada de 32,5 a 52,5 h/semana. Extremos podem ser observações legítimas.")
+            note = (f"IQR ativado · {integer(removed)} registros excluídos entre os {integer(before)} que atendem aos demais filtros. "
+                    f"{integer(len(selected))} registros mantidos.")
         else:
-            note = f"IQR desativado: nenhum registro foi excluído por essa regra. {integer(len(selected))} registros atendem aos filtros atuais."
+            note = f"IQR desativado · {integer(len(selected))} registros atendem aos filtros atuais."
         return (*[figures[chart] for chart in CARD_TITLES],
                 f"{integer(len(selected))} registros na seleção", note, params)
 

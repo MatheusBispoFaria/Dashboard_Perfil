@@ -930,10 +930,6 @@ button:focus-visible, a:focus-visible {
 .iqr-field label { display: flex; align-items: center; gap: 7px; cursor: pointer; line-height: 1.5; }
 .iqr-checkbox { width: 16px; height: 16px; accent-color: var(--blue); flex-shrink: 0; }
 .socio-filter-note { font-size: 12px; line-height: 1.7; margin: 20px 0 8px; color: #5e6a80; }
-.iqr-method { color: #6b7689; font-size: 12px; line-height: 1.8; }
-.iqr-method summary { cursor: pointer; width: fit-content; }
-.iqr-method p { max-width: 110ch; margin: 12px 0; }
-.iqr-method a { color: #4656ba; }
 .socio-chart-guide { font-size: 12px; color: #748095; margin: 0 0 20px; line-height: 1.75; }
 .socio-charts-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 24px; }
 .socio-charts-grid .chart-card { padding: 22px 22px 12px; }
@@ -976,4 +972,35 @@ button:focus-visible, a:focus-visible {
 @media (prefers-reduced-motion: no-preference) {
     .socio-context[open] > .socio-context-copy,
     .socio-dataset[open] > .socio-context-copy { animation: portfolio-content-enter 240ms ease both; }
+}
+
+/* Painéis compactos para preservar o espaço dos gráficos. */
+.socio-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 20px; }
+.socio-panel-toggle {
+    display: inline-flex; align-items: center; gap: 9px;
+    border: 1px solid #dfe3eb; border-radius: 24px; background: #ffffffba;
+    color: #536075; padding: 11px 18px; font-size: 12px; font-weight: 550; cursor: pointer;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.socio-panel-toggle:hover { background: #fff; border-color: #bdc5d4; }
+.socio-panel-toggle[aria-expanded="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.socio-page .socio-filters { margin-top: 0; }
+.socio-study-panel { border: 1px solid #e5e7eb; background: #ffffffb8; border-radius: 20px; padding: 24px; margin-bottom: 22px; }
+.socio-study-panel .socio-context-copy { padding: 0; }
+.socio-study-panel .socio-context-copy + h2 { margin-top: 28px; }
+.socio-study-panel .socio-context-copy > :last-child { margin-bottom: 0; }
+.iqr-label { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 4px; }
+.iqr-help-link {
+    font: inherit; color: #4656ba; background: none; border: 0; padding: 0;
+    text-decoration: underline; text-underline-offset: 3px; cursor: help;
+}
+.iqr-help-link:hover { color: #27358e; }
+.socio-iqr-popover { max-width: min(360px, calc(100vw - 28px)); border: 1px solid #e1e5ed; border-radius: 16px; box-shadow: 0 12px 40px #26304720; }
+.socio-iqr-popover .popover-header { font-size: 13px; font-weight: 600; padding: 14px 17px; border-radius: 16px 16px 0 0; background: #f4f5f8; }
+.socio-iqr-popover .popover-body { font-family: "Inter", "Segoe UI", sans-serif; font-size: 12px; line-height: 1.75; color: #58647a; padding: 15px 17px; }
+.socio-iqr-popover p { margin: 0 0 11px; }
+.socio-iqr-popover p:last-child { margin-bottom: 0; }
+@media (max-width: 720px) {
+    .socio-study-panel { padding: 20px 16px; }
+    .socio-panel-toggle { padding: 10px 15px; }
 }

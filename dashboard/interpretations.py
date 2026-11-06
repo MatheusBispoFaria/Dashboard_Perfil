@@ -34,7 +34,7 @@ def base_findings(data):
     ]
 
 
-def analysis_body(chart, full, selected, confidence="off", removed=0, before=0):
+def analysis_body(chart, selected, confidence="off", removed=0, before=0):
     body = [
         paragraph(f"Seleção atual: {integer(len(selected))} registros. {integer(removed)} registros excluídos pelo IQR entre os {integer(before)} que atendem aos outros filtros."),
         html.H3("Como ler o gráfico"),
@@ -108,11 +108,4 @@ def analysis_body(chart, full, selected, confidence="off", removed=0, before=0):
             paragraph("As médias da tabela usam todos os registros de cada faixa, ponderados pela quantidade de pessoas; não são a média simples dos pontos por idade. As linhas comparam grupos de pessoas diferentes e não acompanham a mesma pessoa ao envelhecer."),
             paragraph("Oscilações nas idades mais altas podem depender de uma ou poucas observações. Quando o intervalo de confiança está ativado, as barras mostram uma aproximação normal da incerteza da média; não se calcula um intervalo para grupos com apenas um registro."),
         ]
-    body += [
-        html.H3("Referência sem filtros"),
-        paragraph("Os números a seguir se referem aos 32.561 registros originais, sem exclusão pelo IQR, e não mudam com a seleção atual."),
-        html.Ul([html.Li(text) for text in base_findings(full)]),
-        paragraph("A amostra é histórica, sem pesos populacionais nesta versão do CSV. Ela não contém relacionamento bancário ou comportamento de crédito; seu uso aqui é exploratório e não permite identificar clientes nem estimar risco de inadimplência."),
-        html.A("Fonte: Adult (Census Income) · UCI · dados de 1994", href=SOURCE, target="_blank", rel="noopener noreferrer"),
-    ]
     return html.Div(body, className="socio-analysis-copy")

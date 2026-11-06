@@ -259,7 +259,7 @@ class ApplicationTests(unittest.TestCase):
             self.assertEqual(response[field]["value"], [])
         self.assertEqual(response["filtro-ic"]["value"], "off")
         self.assertEqual(response["filtro-genero"]["value"], [])
-        self.assertEqual(response["filtro-extremos"]["value"], ["iqr"])
+        self.assertEqual(response["filtro-extremos"]["value"], [])
         self.assertEqual(response["filtro-idade"]["value"], [int(data["age"].min()), int(data["age"].max())])
         self.assertEqual(response["filtro-jornada"]["value"], [int(data["hours_per_week"].min()), int(data["hours_per_week"].max())])
 

@@ -24,7 +24,7 @@ def create_navigation():
 def create_main_layout(profile_url, artwork_url):
     return html.Div(id="portfolio-shell", className="dashboard-wrapper portfolio-shell is-home", children=[
         dcc.Store(id="active-section", data=DEFAULT_SECTION),
-        dcc.Store(id="socio-selection", data={"outliers": ["iqr"], "confidence": "off"}),
+        dcc.Store(id="socio-selection", data={"outliers": [], "confidence": "off"}),
         html.Header(className="portfolio-header", children=[
             html.Img(src=artwork_url, alt="", className="hero-art", **{"aria-hidden": "true"}),
             html.Div(className="portfolio-masthead", children=[

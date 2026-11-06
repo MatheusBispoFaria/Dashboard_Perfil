@@ -1,6 +1,7 @@
 """Filtros compartilhados por todos os gráficos e pela consulta da base."""
 
 from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 from ..labels import EDUCATION, EDUCATION_ORDER, INCOME, SEX, WORKCLASS, label
 
@@ -47,16 +48,24 @@ def create_filters(data):
                              value="off", clearable=False, searchable=False),
             ]),
             html.Div(className="filter-field iqr-field", children=[
-                html.Span("Tratamento de extremos", className="filter-label"),
-                dcc.Checklist(id="filtro-extremos", options=[{"label": " Ocultar extremos por IQR", "value": "iqr"}],
-                              value=["iqr"], inputClassName="iqr-checkbox"),
+                html.Div(className="filter-label iqr-label", children=[
+                    html.Span("Tratamento de extremos · "),
+                    html.Button("IQR", id="socio-iqr-help", type="button", className="iqr-help-link",
+                                **{"aria-label": "Como funciona o IQR", "aria-haspopup": "dialog"}),
+                ]),
+                dcc.Checklist(id="filtro-extremos", options=[{"label": " Ocultar extremos", "value": "iqr"}],
+                              value=[], inputClassName="iqr-checkbox"),
+                dbc.Popover([
+                    dbc.PopoverHeader("IQR · Intervalo interquartil"),
+                    dbc.PopoverBody([
+                        html.P("O IQR é a diferença entre o terceiro e o primeiro quartil (Q3 − Q1), que delimitam os 50% centrais dos valores."),
+                        html.P("A regra de Tukey considera extremos os valores abaixo de Q1 − 1,5 × IQR ou acima de Q3 + 1,5 × IQR."),
+                        html.P("Aqui, os limites são calculados na base completa e permanecem fixos: −2 a 78 anos e 32,5 a 52,5 horas semanais. Ao ativar, apenas registros dentro dos dois intervalos entram nos gráficos, na consulta e no CSV."),
+                        html.P("O filtro começa desativado. Extremos podem ser legítimos, como jornadas parciais ou extensas; a exclusão serve para comparar recortes, não para corrigir automaticamente a base."),
+                    ]),
+                ], id="socio-iqr-popover", target="socio-iqr-help", trigger="hover focus",
+                    placement="auto", autohide=False, class_name="socio-iqr-popover"),
             ]),
         ]),
         html.P(id="socio-filter-note", className="socio-filter-note", **{"aria-live": "polite"}),
-        html.Details(className="iqr-method", children=[
-            html.Summary("Como funciona o filtro IQR?"),
-            html.P("A regra usa os limites Q1 − 1,5 × IQR e Q3 + 1,5 × IQR, sendo IQR = Q3 − Q1. Os quartis são calculados uma vez na base completa para idade e horas semanais; os limites não mudam ao filtrar gênero, renda ou escolaridade."),
-            html.P("Com esta base, os limites são −2 a 78 anos e 32,5 a 52,5 h/semana. O filtro é aplicado aos registros antes de todos os gráficos, análises da seleção, tabela e exportação. Ele pode excluir jornadas parciais ou extensas legítimas: extremos não são necessariamente erros. Desmarque para analisar o recorte sem essa exclusão."),
-            html.A("Referência da regra de Tukey · NIST", href="https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm", target="_blank", rel="noopener noreferrer"),
-        ]),
     ])

@@ -123,16 +123,51 @@ class SocioeconomicTests(unittest.TestCase):
         self.assertTrue(exported["Gênero (sexo na fonte)"].eq("Feminino").all())
         self.assertFalse(download["base64"])
 
-    def test_modal_uses_the_current_snapshot_and_keeps_full_base_separate(self):
+    def test_modal_uses_the_current_snapshot_without_repeating_the_full_base(self):
         chart="graph-genero"
         clicked=json.dumps({"type":"open-analysis","chart":chart},sort_keys=True,separators=(",",":"))
         result=self.call_callback("analysis-modal.is_open",[[1]],[f"{clicked}.n_clicks"],
                                   [{"sex":["Female"],"outliers":[],"confidence":"95"}])
         text=json.dumps(result["analysis-modal-body"],ensure_ascii=False)
         self.assertIn("10.771",text)
-        self.assertIn("Referência sem filtros",text)
-        self.assertIn("32.561",text)
+        self.assertNotIn("Referência sem filtros",text)
+        self.assertNotIn("32.561",text)
         self.assertNotIn("nan%",text)
+
+    def test_panels_toggle_exclusively_without_modifying_filter_values(self):
+        opened=self.call_callback("socio-filters-panel.is_open",[1,0],
+                                  ["socio-toggle-filters.n_clicks"],[False,False])
+        self.assertTrue(opened["socio-filters-panel"]["is_open"])
+        self.assertFalse(opened["socio-description-panel"]["is_open"])
+        self.assertEqual(opened["socio-toggle-filters"]["aria-expanded"],"true")
+        description=self.call_callback("socio-filters-panel.is_open",[1,1],
+                                       ["socio-toggle-description.n_clicks"],[True,False])
+        self.assertFalse(description["socio-filters-panel"]["is_open"])
+        self.assertTrue(description["socio-description-panel"]["is_open"])
+        closed=self.call_callback("socio-filters-panel.is_open",[1,2],
+                                  ["socio-toggle-description.n_clicks"],[False,True])
+        self.assertFalse(closed["socio-description-panel"]["is_open"])
+        self.assertFalse(any(key.startswith("filtro-") for key in closed))
+
+    def test_initial_panels_are_collapsed_and_iqr_help_uses_hover_and_focus(self):
+        rendered=self.call_callback("tab-content-container.children",["analise-dados"])
+        def walk(node):
+            if isinstance(node,list):
+                for child in node:
+                    yield from walk(child)
+            elif isinstance(node,dict) and "props" in node:
+                yield node
+                yield from walk(node["props"].get("children"))
+        components=list(walk(rendered["tab-content-container"]["children"]))
+        by_id={n["props"]["id"]:n["props"] for n in components if isinstance(n["props"].get("id"),str)}
+        self.assertFalse(by_id["socio-filters-panel"]["is_open"])
+        self.assertFalse(by_id["socio-description-panel"]["is_open"])
+        self.assertEqual(by_id["filtro-extremos"]["value"],[])
+        self.assertEqual(by_id["socio-iqr-popover"]["trigger"],"hover focus")
+        self.assertEqual(by_id["socio-iqr-popover"]["target"],"socio-iqr-help")
+        text=json.dumps(rendered,ensure_ascii=False)
+        self.assertIn("Consultar Base de Dados",text)
+        self.assertNotIn("Consultar a base de dados e exportar",text)
 
 
 if __name__=="__main__":

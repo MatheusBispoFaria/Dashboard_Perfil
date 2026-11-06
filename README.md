@@ -108,12 +108,14 @@ idiomas e, exclusivamente nessa página, a seção **Como desenvolvo com IA**.
 A análise socioeconômica contém seis gráficos: renda, renda por gênero,
 escolaridade, ocupações, idade por renda e jornada por idade e renda.
 As setas abrem interpretações calculadas para a seleção atual, acompanhadas
-por uma referência à base completa. A janela fecha pelo botão, pela tecla
+pela descrição da fonte no painel **Sobre a base**. A janela fecha pelo botão, pela tecla
 Escape ou ao clicar fora.
 
-O IQR vem ativado, com limites fixos calculados na base original para idade e
+O IQR vem desativado, com limites fixos calculados na base original para idade e
 jornada. A tela informa quantos registros foram excluídos e permite desativá-lo.
-A consulta da base acompanha os filtros, tem paginação, ordenação e busca,
+Os botões **Filtros** e **Sobre a base** recolhem e expandem os controles e o
+contexto do estudo. A explicação do IQR aparece ao passar o mouse ou focar no
+termo sublinhado. A consulta da base acompanha os filtros, tem paginação, ordenação e busca,
 e exporta todos os resultados em CSV. Consulte
 [metodologia socioeconômica](docs/analise-socioeconomica.md) para os denominadores,
 limites, dados de referência e interpretação dos intervalos.

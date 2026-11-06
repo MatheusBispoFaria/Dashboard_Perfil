@@ -12,14 +12,14 @@ afetam todos os seis gráficos, suas análises, a tabela e o CSV exportado.
 Os nomes das categorias exibidas são traduzidos; os códigos originais usados
 pelos filtros não foram alterados. O tooltip das ocupações mostra o código original.
 
-O IQR vem ativado. A regra de Tukey mantém observações dentro de
+O IQR vem desativado; também permanece desativado ao limpar os filtros. A regra de Tukey mantém observações dentro de
 `[Q1 − 1,5 × IQR, Q3 + 1,5 × IQR]`, com `IQR = Q3 − Q1`.
 Os limites são calculados na base completa, antes dos filtros, para manter
 comparabilidade entre recortes: idade de −2 a 78 anos e jornada de 32,5 a 52,5 h.
 É necessário atender aos limites das duas variáveis.
 Uma variável com IQR zero não sofre exclusão por essa regra.
 
-Sem outros filtros, 23.499 registros são mantidos e 9.062 excluídos. A interface
+Quando ativado sem outros filtros, 23.499 registros são mantidos e 9.062 excluídos. A interface
 informa o efeito e permite desativá-lo. Jornadas parciais e extensas legítimas
 podem ser excluídas; este filtro não é uma correção de erros nem uma garantia
 de representatividade. Ganhos e perdas de capital não entram nessa regra.
@@ -48,7 +48,8 @@ nem probabilidades de risco bancário.
 
 ## Referência sem filtros
 
-As leituras de referência usam sempre os 32.561 registros sem IQR:
+As leituras gerais ficam apenas no painel Sobre a base, e não são repetidas nos
+pop-outs. Elas usam os 32.561 registros sem IQR:
 24.720 na faixa até US$ 50 mil e 7.841 acima desse valor (24,1%);
 21.790 registros masculinos e 10.771 femininos.
 Há um registro aos 86 anos (40 h/semana), um aos 87 (2 h/semana),
@@ -62,3 +63,11 @@ na tabela, sobre os rótulos exibidos. O botão CSV exporta todos os registros
 encontrados na busca após os filtros globais e o IQR, com a ordenação escolhida,
 em UTF-8 com BOM e separador ponto e vírgula. `Registro` identifica a linha
 do CSV original. A base de origem não é sobrescrita.
+
+## Painéis da interface
+
+Os botões Filtros e Sobre a base expandem painéis recolhidos inicialmente.
+Abrir um recolhe o outro sem recriar os controles ou apagar a seleção.
+A explicação da regra IQR fica em um card acessível por hover e foco no termo
+sublinhado; no toque, o botão pode receber foco. O título inferior da consulta
+é Consultar Base de Dados.

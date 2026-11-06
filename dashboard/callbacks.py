@@ -51,9 +51,9 @@ def register_callbacks(app, data, sections):
             raise PreventUpdate
         body = []
         if chart in CARD_TITLES:
-            params = selection or {"outliers": ["iqr"], "confidence": "off"}
+            params = selection or {"outliers": [], "confidence": "off"}
             selected, removed, before = select_dataset(data, **params)
-            body = analysis_body(chart, data, selected, params.get("confidence") or "off", removed, before)
+            body = analysis_body(chart, selected, params.get("confidence") or "off", removed, before)
         return True, f"Análise de dados · {analysis_titles[chart]}", body
 
     @app.callback(
