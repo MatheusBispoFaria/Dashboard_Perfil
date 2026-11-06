@@ -28,8 +28,8 @@ def base_findings(data):
     peak = data["age"].value_counts().idxmax()
     return [
         f"{integer(high)} de {integer(total)} pessoas ({decimal(high/total*100)}%) têm renda anual acima de US$ 50 mil. O restante está na faixa de até US$ 50 mil, incluindo esse limite.",
-        f"A composição é de {integer(male)} registros masculinos ({decimal(male/total*100)}%) e {integer(female)} femininos ({decimal(female/total*100)}%). Essa diferença descreve a amostra; sozinha, não mede desigualdade de renda.",
-        f"A idade mais frequente é {int(peak)} anos, com {integer(data['age'].eq(peak).sum())} registros. Há {integer(data['age'].eq(84).sum())} registros aos 84 anos e {integer(data['age'].eq(90).sum())} aos 90; a distribuição não chega a zero aos 84.",
+        f"A amostra reúne {integer(male)} registros masculinos ({decimal(male/total*100)}%) e {integer(female)} femininos ({decimal(female/total*100)}%). Essa composição, isoladamente, não permite concluir que há desigualdade de renda entre os grupos.",
+        f"A idade mais frequente é {int(peak)} anos, com {integer(data['age'].eq(peak).sum())} registros. Há {integer(data['age'].eq(84).sum())} registros aos 84 anos e {integer(data['age'].eq(90).sum())} aos 90; esses grupos têm menos observações e exigem atenção na interpretação.",
         "Aos 86 anos há um registro com jornada de 40 h/semana; aos 87, um com 2 h/semana. Médias baseadas em grupos tão pequenos exigem uma leitura cuidadosa.",
     ]
 

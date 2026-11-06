@@ -28,7 +28,7 @@ def create_main_layout(profile_url, artwork_url):
         html.Header(className="portfolio-header", children=[
             html.Img(src=artwork_url, alt="", className="hero-art", **{"aria-hidden": "true"}),
             html.Div(className="portfolio-masthead", children=[
-                html.Button("Matheus Barbosa Faria", id="nav-inicio", n_clicks=0,
+                html.Button("Matheus Bispo Faria Barbosa", id="nav-inicio", n_clicks=0,
                             className="home-link", type="button", title="Voltar à página inicial"),
                 html.Div(className="masthead-right", children=[
                     html.Span("PORTFÓLIO DIGITAL", className="masthead-label"),
@@ -59,7 +59,7 @@ def create_main_layout(profile_url, artwork_url):
             html.Div(className="analysis-switcher", children=[
                 html.P("ANÁLISES DE DADOS", className="page-eyebrow"),
                 dcc.Tabs(id="analysis-selector", value="analise-dados", className="analysis-tabs",
-                    parent_className="analysis-tabs-container", children=[
+                    parent_className="analysis-tabs-container", mobile_breakpoint=0, children=[
                         dcc.Tab(label=label, value=value, className="analysis-tab",
                                 selected_className="analysis-tab selected")
                         for value, label in ANALYSIS_ITEMS

@@ -30,17 +30,17 @@ def create_analysis_layout(data):
         dbc.Collapse(html.Section(className="socio-study-panel", children=[
             html.H2("Sobre o estudo e a escolha da base", className="portfolio-section-title"),
             html.Div(className="socio-context-copy", children=[
-                html.P("Este estudo fez parte de um checkpoint que compôs minha avaliação em 2026. A proposta era construir um dashboard profissional com minha apresentação, qualificações e experiências, tendo como foco uma análise de dados sobre um tema de interesse."),
-                html.P("Por recomendação do professor, escolhi a base Adult, também conhecida como Census Income, disponibilizada pelo repositório UCI. Ela reúne informações socioeconômicas dos Estados Unidos de 1994 e foi publicada em 1996; não é uma série histórica de 1994 a 1996. Utilizei 32.561 registros para explorar as relações entre renda, escolaridade, idade, ocupação e jornada de trabalho."),
-                html.P("Meu objetivo era exercitar a leitura de perfis socioeconômicos em um contexto de interesse pelo setor bancário, aplicando meus conhecimentos de interpretação de gráficos e construção de dashboards. A base não identifica clientes nem contém informações de relacionamento bancário ou crédito: as conclusões se limitam à amostra e às associações observadas."),
-                html.P("A análise abaixo permite formular perguntas, comparar grupos e examinar os registros. Cada seta abre uma interpretação do gráfico, com os resultados da seleção atual."),
+                html.P("Desenvolvi este estudo em um checkpoint da FIAP, em 2026. A proposta era criar um portfólio digital que reunisse minha apresentação, qualificações e projetos, com um dashboard dedicado à análise de um tema de interesse."),
+                html.P("Por recomendação do professor, escolhi a base Adult (Census Income), disponível no repositório UCI. Publicada em 1996, ela reúne dados socioeconômicos dos Estados Unidos referentes a 1994. Neste projeto, utilizei 32.561 registros para explorar as relações entre renda anual, escolaridade, idade, ocupação e jornada de trabalho."),
+                html.P("Meu interesse pelo setor financeiro motivou a investigação de como esses perfis se relacionam com a renda. O objetivo foi aplicar conhecimentos de análise de dados e visualização para comparar grupos e formular perguntas. Como a base não contém informações sobre clientes ou operações bancárias, os resultados descrevem apenas a amostra estudada."),
+                html.P("Explore os gráficos, combine os filtros e consulte os registros para aprofundar a análise. A seta de cada gráfico abre uma interpretação dos resultados da seleção atual."),
                 html.A("Conhecer a base Adult · UCI", href=SOURCE, target="_blank", rel="noopener noreferrer"),
             ]),
             html.H2("Leitura inicial da base completa · sem filtros", className="portfolio-section-title"),
             html.Div(className="socio-context-copy", children=[
-                html.P("Estes números descrevem os registros originais, antes de qualquer filtro e da exclusão de extremos. Eles servem de referência e não são recalculados pela seleção abaixo."),
+                html.P("Os destaques a seguir descrevem os 32.561 registros da base completa, sem filtros ou exclusão de extremos. Permanecem fixos como referência, mesmo quando você altera a seleção dos gráficos."),
                 html.Ul([html.Li(text) for text in base_findings(data)]),
-                html.P("Os percentuais contam pessoas, e não valores monetários. As comparações entre escolaridade, ocupação e renda são descritivas: não demonstram causalidade nem permitem generalizar os resultados para a população atual."),
+                html.P("Os percentuais representam a proporção de pessoas em cada grupo, e não a distribuição do dinheiro total. As relações observadas são descritivas: não demonstram causa e efeito nem representam, necessariamente, a população atual."),
             ]),
         ]), id="socio-description-panel", is_open=False),
         dbc.Collapse(create_filters(data), id="socio-filters-panel", is_open=False),
